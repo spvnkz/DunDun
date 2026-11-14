@@ -9,9 +9,18 @@
   // Storage key
   const STORAGE_KEY = 'dundun_tasks';
 
+  // Category Icons Mapping
+  const CATEGORY_ICONS = {
+    Work: '💼',
+    Personal: '👤',
+    School: '📚',
+    Others: '📌'
+  };
+
   // State
   let tasks = [];
   let currentFilter = 'all'; // 'all' | 'pending' | 'completed'
+  let currentCategory = 'all'; // 'all' | 'Work' | 'Personal' | 'School' | 'Others'
   let searchQuery = '';
   let pendingDeleteTaskId = null;
 
@@ -20,10 +29,12 @@
   const taskTitleInput = document.getElementById('task-title');
   const taskDueDateInput = document.getElementById('task-due-date');
   const taskPriorityInput = document.getElementById('task-priority');
+  const taskCategoryInput = document.getElementById('task-category');
 
   const searchInput = document.getElementById('search-input');
   const searchClearBtn = document.getElementById('search-clear-btn');
   const filterTabs = document.querySelectorAll('.filter-tab');
+  const categoryPills = document.querySelectorAll('.category-pill');
 
   const tasksContainer = document.getElementById('tasks-container');
 
@@ -38,6 +49,13 @@
   const filterCountPending = document.getElementById('filter-count-pending');
   const filterCountCompleted = document.getElementById('filter-count-completed');
 
+  // Category Counts DOM
+  const catCountAll = document.getElementById('cat-count-all');
+  const catCountWork = document.getElementById('cat-count-work');
+  const catCountPersonal = document.getElementById('cat-count-personal');
+  const catCountSchool = document.getElementById('cat-count-school');
+  const catCountOthers = document.getElementById('cat-count-others');
+
   // Edit Modal DOM
   const editModal = document.getElementById('edit-modal');
   const editTaskForm = document.getElementById('edit-task-form');
@@ -45,6 +63,7 @@
   const editTaskTitle = document.getElementById('edit-task-title');
   const editTaskDueDate = document.getElementById('edit-task-due-date');
   const editTaskPriority = document.getElementById('edit-task-priority');
+  const editTaskCategory = document.getElementById('edit-task-category');
   const editModalClose = document.getElementById('edit-modal-close');
   const editModalCancel = document.getElementById('edit-modal-cancel');
 
@@ -131,7 +150,15 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw !== null) {
         tasks = JSON.parse(raw);
-        if (!Array.isArray(tasks)) tasks = [];
+        if (!Array.isArray(tasks)) {
+          tasks = [];
+        } else {
+          // Backward compatibility: Ensure every existing task has a category
+          tasks = tasks.map(task => ({
+            ...task,
+            category: task.category || 'Others'
+          }));
+        }
       } else {
         // Initial playful starter tasks for first-time visitors
         const today = getTodayString();
@@ -145,22 +172,34 @@
             title: 'Welcome to DunDun! 🥁 Tap the checkbox when done',
             dueDate: today,
             priority: 'High',
+            category: 'Personal',
             completed: false,
-            createdAt: Date.now() - 2000
+            createdAt: Date.now() - 3000
           },
           {
             id: 'task_' + Date.now() + '_2',
             title: 'Organize high, medium & low priority tasks ⚡',
             dueDate: tomorrow,
             priority: 'Medium',
+            category: 'Work',
+            completed: false,
+            createdAt: Date.now() - 2000
+          },
+          {
+            id: 'task_' + Date.now() + '_3',
+            title: 'Prepare study notes & review formulas 📚',
+            dueDate: tomorrow,
+            priority: 'Low',
+            category: 'School',
             completed: false,
             createdAt: Date.now() - 1000
           },
           {
-            id: 'task_' + Date.now() + '_3',
+            id: 'task_' + Date.now() + '_4',
             title: 'Finished setting up the task manager! ✨',
             dueDate: '',
             priority: 'Low',
+            category: 'Others',
             completed: true,
             createdAt: Date.now()
           }
@@ -194,12 +233,14 @@
 
     const dueDate = taskDueDateInput.value;
     const priority = taskPriorityInput.value;
+    const category = taskCategoryInput.value || 'Personal';
 
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
       title,
       dueDate,
       priority,
+      category,
       completed: false,
       createdAt: Date.now()
     };
@@ -210,6 +251,7 @@
     // Reset inputs
     addTaskForm.reset();
     taskPriorityInput.value = 'Medium';
+    taskCategoryInput.value = 'Personal';
     taskTitleInput.focus();
 
     render();
@@ -238,6 +280,7 @@
     editTaskTitle.value = task.title;
     editTaskDueDate.value = task.dueDate || '';
     editTaskPriority.value = task.priority || 'Medium';
+    editTaskCategory.value = task.category || 'Personal';
 
     editModal.hidden = false;
     editTaskTitle.focus();
@@ -265,6 +308,7 @@
       task.title = title;
       task.dueDate = editTaskDueDate.value;
       task.priority = editTaskPriority.value;
+      task.category = editTaskCategory.value || 'Others';
       saveTasks();
       render();
     }
@@ -319,6 +363,13 @@
     filterCountPending.textContent = pending;
     filterCountCompleted.textContent = completed;
 
+    // Update Category Pill Counts
+    if (catCountAll) catCountAll.textContent = total;
+    if (catCountWork) catCountWork.textContent = tasks.filter(t => (t.category || 'Others') === 'Work').length;
+    if (catCountPersonal) catCountPersonal.textContent = tasks.filter(t => (t.category || 'Others') === 'Personal').length;
+    if (catCountSchool) catCountSchool.textContent = tasks.filter(t => (t.category || 'Others') === 'School').length;
+    if (catCountOthers) catCountOthers.textContent = tasks.filter(t => (t.category || 'Others') === 'Others').length;
+
     const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
     progressFill.style.width = `${percentage}%`;
     progressText.textContent = `${percentage}% DunDun`;
@@ -332,6 +383,10 @@
       // Status filter
       if (currentFilter === 'pending' && task.completed) return false;
       if (currentFilter === 'completed' && !task.completed) return false;
+
+      // Category filter
+      const taskCategory = task.category || 'Others';
+      if (currentCategory !== 'all' && taskCategory !== currentCategory) return false;
 
       // Search filter
       if (searchQuery.trim() !== '') {
@@ -369,6 +424,10 @@
       let message = 'No tasks match your current filter.';
       if (searchQuery.trim() !== '') {
         message = `No tasks matching "<strong>${escapeHTML(searchQuery)}</strong>".`;
+      } else if (currentCategory !== 'all' && currentFilter !== 'all') {
+        message = `No ${currentFilter} tasks found in <strong>${escapeHTML(currentCategory)}</strong>.`;
+      } else if (currentCategory !== 'all') {
+        message = `No tasks found in <strong>${escapeHTML(currentCategory)}</strong>.`;
       } else if (currentFilter === 'pending') {
         message = 'Great job! No pending tasks remaining. Everything is DunDun! 🎉';
       } else if (currentFilter === 'completed') {
@@ -400,6 +459,11 @@
       const priorityClass = `prio-${task.priority.toLowerCase()}`;
       const priorityIcon = task.priority === 'High' ? '🔥' : (task.priority === 'Medium' ? '⚡' : '🌱');
 
+      // Category badge
+      const categoryName = task.category || 'Others';
+      const categoryClass = `cat-${categoryName.toLowerCase()}`;
+      const categoryIcon = CATEGORY_ICONS[categoryName] || '📌';
+
       taskEl.innerHTML = `
         <div class="task-check-wrapper">
           <button 
@@ -414,6 +478,9 @@
         <div class="task-content">
           <div class="task-text">${escapeHTML(task.title)}</div>
           <div class="task-meta">
+            <span class="badge-category ${categoryClass}">
+              <span>${categoryIcon}</span> ${categoryName}
+            </span>
             <span class="badge-priority ${priorityClass}">
               <span>${priorityIcon}</span> ${task.priority}
             </span>
@@ -487,6 +554,16 @@
         tab.classList.add('active');
         tab.setAttribute('aria-selected', 'true');
         currentFilter = tab.getAttribute('data-filter');
+        render();
+      });
+    });
+
+    // Category filter pills
+    categoryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        categoryPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentCategory = pill.getAttribute('data-category') || 'all';
         render();
       });
     });

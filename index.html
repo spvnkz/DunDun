@@ -79,6 +79,16 @@
               <option value="Low">🌱 Low</option>
             </select>
           </div>
+
+          <div class="form-group flex-1">
+            <label for="task-category" class="form-label">Category</label>
+            <select id="task-category" class="form-control">
+              <option value="Work">💼 Work</option>
+              <option value="Personal" selected>👤 Personal</option>
+              <option value="School">📚 School</option>
+              <option value="Others">📌 Others</option>
+            </select>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" id="btn-add-task">
@@ -110,6 +120,27 @@
         <button type="button" class="filter-tab" data-filter="completed" role="tab" aria-selected="false">
           Completed <span class="tab-badge" id="filter-count-completed">0</span>
         </button>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="category-filters-container">
+        <div class="category-pills" role="group" aria-label="Filter by category">
+          <button type="button" class="category-pill active" data-category="all">
+            All <span class="cat-pill-count" id="cat-count-all">0</span>
+          </button>
+          <button type="button" class="category-pill" data-category="Work">
+            💼 Work <span class="cat-pill-count" id="cat-count-work">0</span>
+          </button>
+          <button type="button" class="category-pill" data-category="Personal">
+            👤 Personal <span class="cat-pill-count" id="cat-count-personal">0</span>
+          </button>
+          <button type="button" class="category-pill" data-category="School">
+            📚 School <span class="cat-pill-count" id="cat-count-school">0</span>
+          </button>
+          <button type="button" class="category-pill" data-category="Others">
+            📌 Others <span class="cat-pill-count" id="cat-count-others">0</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -158,6 +189,16 @@
               <option value="High">🔥 High</option>
               <option value="Medium">⚡ Medium</option>
               <option value="Low">🌱 Low</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="edit-task-category" class="form-label">Category</label>
+            <select id="edit-task-category" class="form-control">
+              <option value="Work">💼 Work</option>
+              <option value="Personal">👤 Personal</option>
+              <option value="School">📚 School</option>
+              <option value="Others">📌 Others</option>
             </select>
           </div>
         </div>

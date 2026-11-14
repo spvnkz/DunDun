@@ -504,6 +504,74 @@ select.form-control {
   color: var(--primary);
 }
 
+/* Category Filters */
+.category-filters-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-top: 0.15rem;
+}
+
+.category-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.2rem 0;
+  width: 100%;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.category-pills::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  min-height: 34px;
+}
+
+.category-pill:hover {
+  border-color: #cbd5e1;
+  color: var(--text-main);
+  background: #f8fafc;
+}
+
+.category-pill.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(92, 84, 229, 0.15);
+}
+
+.cat-pill-count {
+  font-size: 0.7rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--radius-pill);
+  background: rgba(148, 163, 184, 0.2);
+  line-height: 1.2;
+}
+
+.category-pill.active .cat-pill-count {
+  background: var(--primary);
+  color: #ffffff;
+}
+
 /* Tasks Container */
 .tasks-container {
   display: flex;
@@ -662,6 +730,42 @@ select.form-control {
   background-color: var(--prio-low-bg);
   color: var(--prio-low);
   border: 1px solid var(--prio-low-border);
+}
+
+/* Category Badges */
+.badge-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+}
+
+.badge-category.cat-work {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-category.cat-personal {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.badge-category.cat-school {
+  background-color: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #a5f3fc;
+}
+
+.badge-category.cat-others {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 /* Due Date Badge */
@@ -882,6 +986,13 @@ select.form-control {
 }
 
 /* Mobile Optimizations */
+@media (max-width: 560px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .app-wrapper {
     padding: 1rem 0.75rem 2.5rem 0.75rem;
